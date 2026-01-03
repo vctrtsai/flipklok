@@ -1,147 +1,246 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.3">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlipClock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        .clock-container {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .time-section {
+            display: flex;
+            gap: 8px;
+        }
+
+        .separator {
+            font-size: 80px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: bold;
+            align-self: center;
+            margin: 0 5px;
+        }
+
+        .flip-card {
+            position: relative;
+            width: 80px;
+            height: 100px;
+            perspective: 500px;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flip-card.flipping .flip-card-inner {
+            transform: rotateX(180deg);
+        }
+
+        .flip-card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            background: #2d3748;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 60px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .flip-card-face::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .flip-card-back {
+            transform: rotateX(180deg);
+        }
+
+        .period {
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: bold;
+            margin-left: 10px;
+            align-self: flex-end;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .flip-card {
+                width: 60px;
+                height: 80px;
+            }
+            .flip-card-face {
+                font-size: 45px;
+            }
+            .separator {
+                font-size: 60px;
+            }
+        }
+    </style>
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="en"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1">&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1">&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</p>
-<p class="p1">&lt;title&gt;Flip Clock&lt;/title&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;style&gt;</p>
-<p class="p1">html, body {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>margin: 0;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>width: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>height: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background: #000;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>justify-content: center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>overflow: hidden;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">.clock {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>gap: 2vw;</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">.card {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>position: relative;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>width: 42vw;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>max-width: 240px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>height: 70vw;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>max-height: 360px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background: #0a0a0a;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>border-radius: 28px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>justify-content: center;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>perspective: 1200px;</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">.card::after {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>content: "";</p>
-<p class="p1"><span class="Apple-converted-space">  </span>position: absolute;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>left: 6%;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>right: 6%;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>top: 50%;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>height: 2px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>background: #1c1c1c;</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">.value {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size: 42vw;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>max-font-size: 240px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color: #bfbfbf;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>line-height: 1;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-weight: 600;</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">.ampm {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>position: absolute;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>bottom: 18px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>left: 22px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>font-size: 28px;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>color: #9a9a9a;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>letter-spacing: 1px;</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">.flip {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>animation: flip 0.7s cubic-bezier(0.4, 0, 0.2, 1);</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">@keyframes flip {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>0% { transform: rotateX(0deg); }</p>
-<p class="p1"><span class="Apple-converted-space">  </span>40% { transform: rotateX(-90deg); }</p>
-<p class="p1"><span class="Apple-converted-space">  </span>100% { transform: rotateX(0deg); }</p>
-<p class="p1">}</p>
-<p class="p1">&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;div class="clock"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="card" id="hourCard"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="value" id="hour"&gt;7&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="ampm" id="ampm"&gt;PM&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="card" id="minuteCard"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="value" id="minute"&gt;44&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
-<p class="p1">&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;audio autoplay loop muted&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;source src="data:audio/mp3;base64,//uQZAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQCA" type="audio/mp3"&gt;</p>
-<p class="p1">&lt;/audio&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;script&gt;</p>
-<p class="p1">let lastMinute = null;</p>
-<p class="p2"><br></p>
-<p class="p1">function updateClock() {</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const now = new Date();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const brisbane = new Date(</p>
-<p class="p1"><span class="Apple-converted-space">    </span>now.toLocaleString('en-US', { timeZone: 'Australia/Brisbane' })</p>
-<p class="p1"><span class="Apple-converted-space">  </span>);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>let hours = brisbane.getHours();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const minutes = brisbane.getMinutes();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>const ampm = hours &gt;= 12 ? 'PM' : 'AM';</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>hours = hours % 12;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>hours = hours ? hours : 12;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>if (minutes !== lastMinute) {</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('hourCard').classList.remove('flip');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('minuteCard').classList.remove('flip');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>void document.body.offsetWidth;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('hourCard').classList.add('flip');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('minuteCard').classList.add('flip');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>lastMinute = minutes;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('hour').textContent = hours;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('minute').textContent = String(minutes).padStart(2, '0');</p>
-<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('ampm').textContent = ampm;</p>
-<p class="p1">}</p>
-<p class="p2"><br></p>
-<p class="p1">updateClock();</p>
-<p class="p1">setInterval(updateClock, 1000);</p>
-<p class="p1">&lt;/script&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+    <div class="clock-container">
+        <div class="time-section">
+            <div class="flip-card" id="hour1">
+                <div class="flip-card-inner">
+                    <div class="flip-card-face flip-card-front">0</div>
+                    <div class="flip-card-face flip-card-back">0</div>
+                </div>
+            </div>
+            <div class="flip-card" id="hour2">
+                <div class="flip-card-inner">
+                    <div class="flip-card-face flip-card-front">0</div>
+                    <div class="flip-card-face flip-card-back">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="separator">:</div>
+        
+        <div class="time-section">
+            <div class="flip-card" id="min1">
+                <div class="flip-card-inner">
+                    <div class="flip-card-face flip-card-front">0</div>
+                    <div class="flip-card-face flip-card-back">0</div>
+                </div>
+            </div>
+            <div class="flip-card" id="min2">
+                <div class="flip-card-inner">
+                    <div class="flip-card-face flip-card-front">0</div>
+                    <div class="flip-card-face flip-card-back">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="period" id="period">AM</div>
+    </div>
+
+    <script>
+        // Wake Lock API to prevent screen timeout
+        let wakeLock = null;
+
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Wake Lock activated');
+                    
+                    wakeLock.addEventListener('release', () => {
+                        console.log('Wake Lock released');
+                    });
+                }
+            } catch (err) {
+                console.log('Wake Lock error:', err);
+            }
+        }
+
+        // Request wake lock on page load and visibility change
+        requestWakeLock();
+        
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+                await requestWakeLock();
+            }
+        });
+
+        // Flip animation function
+        function flipCard(element, newValue) {
+            const front = element.querySelector('.flip-card-front');
+            const back = element.querySelector('.flip-card-back');
+            
+            if (front.textContent != newValue) {
+                back.textContent = newValue;
+                element.classList.add('flipping');
+                
+                setTimeout(() => {
+                    front.textContent = newValue;
+                    element.classList.remove('flipping');
+                }, 600);
+            }
+        }
+
+        let lastMinute = -1;
+
+        // Update clock
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes();
+            
+            // Only update if minute has changed
+            if (minutes !== lastMinute) {
+                lastMinute = minutes;
+                
+                const period = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12 || 12;
+                
+                const h1 = Math.floor(hours / 10);
+                const h2 = hours % 10;
+                const m1 = Math.floor(minutes / 10);
+                const m2 = minutes % 10;
+                
+                flipCard(document.getElementById('hour1'), h1);
+                flipCard(document.getElementById('hour2'), h2);
+                flipCard(document.getElementById('min1'), m1);
+                flipCard(document.getElementById('min2'), m2);
+                
+                document.getElementById('period').textContent = period;
+            }
+        }
+
+        // Initialize and check every second
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // Additional keep-alive mechanisms
+        // Silent audio context to prevent sleep
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        gainNode.gain.value = 0.001; // Nearly silent
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        oscillator.start();
+
+        // Periodic touchstart simulation
+        setInterval(() => {
+            const event = new Event('touchstart');
+            document.dispatchEvent(event);
+        }, 30000); // Every 30 seconds
+    </script>
 </body>
 </html>
