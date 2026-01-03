@@ -61,34 +61,14 @@
 
         .flip-card {
             position: relative;
-            width: 140px;
-            height: 180px;
-            perspective: 1000px;
-        }
-
-        .flip-card-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
-            transform-style: preserve-3d;
-        }
-
-        .flip-card.flipping .flip-card-inner {
-            transform: rotateX(180deg);
-        }
-
-        .flip-card-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
+            width: 160px;
+            height: 200px;
             background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
             border-radius: 12px;
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-size: 110px;
+            justify-content: center;
+            font-size: 120px;
             font-weight: 700;
             color: #ffffff;
             box-shadow: 
@@ -97,72 +77,54 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .flip-card-face::before {
+        .flip-card::before {
             content: '';
             position: absolute;
             top: 50%;
             left: 0;
             right: 0;
             height: 2px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
-        }
-
-        .flip-card-face::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 50%;
-            background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
-            border-radius: 0 0 12px 12px;
-        }
-
-        .flip-card-back {
-            transform: rotateX(180deg);
+            z-index: 1;
         }
 
         .period {
-            font-size: 32px;
-            color: rgba(255, 255, 255, 0.5);
-            font-weight: 300;
-            margin-left: 15px;
+            font-size: 36px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            margin-left: 20px;
             align-self: flex-end;
-            margin-bottom: 30px;
-            letter-spacing: 2px;
+            margin-bottom: 35px;
+            letter-spacing: 3px;
         }
 
         @media (max-width: 800px) {
             .flip-card {
-                width: 100px;
-                height: 140px;
-            }
-            .flip-card-face {
-                font-size: 80px;
+                width: 120px;
+                height: 150px;
+                font-size: 90px;
             }
             .separator {
                 font-size: 90px;
             }
             .period {
-                font-size: 24px;
-                margin-bottom: 20px;
+                font-size: 28px;
+                margin-bottom: 25px;
             }
         }
 
         @media (max-width: 600px) {
             .flip-card {
-                width: 70px;
+                width: 80px;
                 height: 100px;
-            }
-            .flip-card-face {
-                font-size: 55px;
+                font-size: 60px;
             }
             .separator {
                 font-size: 60px;
             }
             .period {
-                font-size: 18px;
+                font-size: 20px;
                 margin-bottom: 15px;
             }
             .time-section {
@@ -179,35 +141,15 @@
 
     <div class="clock-container">
         <div class="time-section">
-            <div class="flip-card" id="hour1">
-                <div class="flip-card-inner">
-                    <div class="flip-card-face flip-card-front">0</div>
-                    <div class="flip-card-face flip-card-back">0</div>
-                </div>
-            </div>
-            <div class="flip-card" id="hour2">
-                <div class="flip-card-inner">
-                    <div class="flip-card-face flip-card-front">0</div>
-                    <div class="flip-card-face flip-card-back">0</div>
-                </div>
-            </div>
+            <div class="flip-card" id="hour1">0</div>
+            <div class="flip-card" id="hour2">0</div>
         </div>
         
         <div class="separator">:</div>
         
         <div class="time-section">
-            <div class="flip-card" id="min1">
-                <div class="flip-card-inner">
-                    <div class="flip-card-face flip-card-front">0</div>
-                    <div class="flip-card-face flip-card-back">0</div>
-                </div>
-            </div>
-            <div class="flip-card" id="min2">
-                <div class="flip-card-inner">
-                    <div class="flip-card-face flip-card-front">0</div>
-                    <div class="flip-card-face flip-card-back">0</div>
-                </div>
-            </div>
+            <div class="flip-card" id="min1">0</div>
+            <div class="flip-card" id="min2">0</div>
         </div>
 
         <div class="period" id="period">AM</div>
@@ -225,7 +167,6 @@
             }
         }
 
-        // Hide fullscreen button when in fullscreen
         document.addEventListener('fullscreenchange', () => {
             const btn = document.querySelector('.fullscreen-btn');
             if (document.fullscreenElement) {
@@ -235,25 +176,19 @@
             }
         });
 
-        // Wake Lock API to prevent screen timeout
+        // Wake Lock API
         let wakeLock = null;
 
         async function requestWakeLock() {
             try {
                 if ('wakeLock' in navigator) {
                     wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('Wake Lock activated');
-                    
-                    wakeLock.addEventListener('release', () => {
-                        console.log('Wake Lock released');
-                    });
                 }
             } catch (err) {
                 console.log('Wake Lock error:', err);
             }
         }
 
-        // Request wake lock on page load and visibility change
         requestWakeLock();
         
         document.addEventListener('visibilitychange', async () => {
@@ -262,31 +197,13 @@
             }
         });
 
-        // Flip animation function
-        function flipCard(element, newValue) {
-            const front = element.querySelector('.flip-card-front');
-            const back = element.querySelector('.flip-card-back');
-            
-            if (front.textContent != newValue) {
-                back.textContent = newValue;
-                element.classList.add('flipping');
-                
-                setTimeout(() => {
-                    front.textContent = newValue;
-                    element.classList.remove('flipping');
-                }, 800);
-            }
-        }
-
         let lastMinute = -1;
 
-        // Update clock
         function updateClock() {
             const now = new Date();
             let hours = now.getHours();
             const minutes = now.getMinutes();
             
-            // Only update if minute has changed
             if (minutes !== lastMinute) {
                 lastMinute = minutes;
                 
@@ -298,36 +215,90 @@
                 const m1 = Math.floor(minutes / 10);
                 const m2 = minutes % 10;
                 
-                flipCard(document.getElementById('hour1'), h1);
-                flipCard(document.getElementById('hour2'), h2);
-                flipCard(document.getElementById('min1'), m1);
-                flipCard(document.getElementById('min2'), m2);
+                document.getElementById('hour1').textContent = h1;
+                document.getElementById('hour2').textContent = h2;
+                document.getElementById('min1').textContent = m1;
+                document.getElementById('min2').textContent = m2;
                 
                 document.getElementById('period').textContent = period;
             }
         }
 
-        // Initialize and check every second
         updateClock();
         setInterval(updateClock, 1000);
 
-        // Additional keep-alive mechanisms
-        // Silent audio context to prevent sleep
+        // Keep-alive mechanisms
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
-        gainNode.gain.value = 0.001; // Nearly silent
+        gainNode.gain.value = 0.001;
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
         oscillator.start();
 
-        // Periodic touchstart simulation
-        setInterval(() => {
-            const event = new Event('touchstart');
-            document.dispatchEvent(event);
-        }, 30000); // Every 30 seconds
+        // Play actual silent audio element periodically
+        const silentAudio = new Audio();
+        silentAudio.loop = true;
+        silentAudio.volume = 0.01;
+        // Very short silent audio data URL
+        silentAudio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQAAAAA=';
+        silentAudio.play().catch(e => console.log('Audio play failed:', e));
 
-        // Click anywhere to go fullscreen
+        // Simulate realistic user interactions every few minutes
+        function simulateUserInteraction() {
+            // Simulate various user events that browsers track for activity
+            const events = [
+                new MouseEvent('mousemove', { bubbles: true, cancelable: true, clientX: Math.random() * 100, clientY: Math.random() * 100 }),
+                new MouseEvent('click', { bubbles: true, cancelable: true }),
+                new TouchEvent('touchstart', { bubbles: true, cancelable: true }),
+                new TouchEvent('touchend', { bubbles: true, cancelable: true }),
+                new KeyboardEvent('keypress', { bubbles: true, cancelable: true, key: ' ' }),
+                new Event('scroll', { bubbles: true })
+            ];
+            
+            events.forEach(event => {
+                try {
+                    document.body.dispatchEvent(event);
+                } catch(e) {
+                    // Some events might fail, that's ok
+                }
+            });
+            
+            // Also simulate focus/blur to make it seem like user is switching tabs
+            window.focus();
+            
+            // Re-request wake lock
+            if (wakeLock === null || wakeLock.released) {
+                requestWakeLock();
+            }
+            
+            // Keep audio playing
+            if (silentAudio.paused) {
+                silentAudio.play().catch(e => console.log('Audio replay failed:', e));
+            }
+            
+            console.log('Simulated user interaction');
+        }
+
+        // Simulate interaction every 3 minutes (180000ms)
+        setInterval(simulateUserInteraction, 180000);
+        
+        // Also do it every 30 seconds as backup
+        setInterval(() => {
+            const event = new MouseEvent('mousemove', { bubbles: true, cancelable: true });
+            document.body.dispatchEvent(event);
+        }, 30000);
+
+        // Video element trick (some devices respond better to video)
+        const video = document.createElement('video');
+        video.loop = true;
+        video.muted = true;
+        video.style.display = 'none';
+        // Tiny 1x1 black video
+        video.src = 'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMQAAAAhmcmVlAAAAuW1kYXQAAAKuBgX//4ncRem95tlIt5Ys2CDZI+7veDI2NCAtIGNvcmUgMTU5IC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxOSAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzoweDExMyBtZT1oZXggc3VibWU9NyBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0xIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0xIHRyZWxsaXM9MSA4eDhkY3Q9MSBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0tMiB0aHJlYWRzPTEgbG9va2FoZWFkX3RocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz0zIGJfcHlyYW1pZD0yIGJfYWRhcHQ9MSBiX2JpYXM9MCBkaXJlY3Q9MSB3ZWlnaHRiPTEgb3Blbl9nb3A9MCB3ZWlnaHRwPTIga2V5aW50PTI1MCBrZXlpbnRfbWluPTI1IHNjZW5lY3V0PTQwIGludHJhX3JlZnJlc2g9MCByY19sb29rYWhlYWQ9NDAgcmM9Y3JmIG1idHJlZT0xIGNyZj0yMy4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCBpcF9yYXRpbz0xLjQwIGFxPTE6MS4wMACAAAAA';
+        document.body.appendChild(video);
+        video.play().catch(e => console.log('Video play failed:', e));
+
         let hasInteracted = false;
         document.body.addEventListener('click', () => {
             if (!hasInteracted && !document.fullscreenElement) {
