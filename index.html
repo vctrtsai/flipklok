@@ -19,6 +19,7 @@
             min-height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             overflow: hidden;
+            padding-bottom: 40px;
         }
 
         .fullscreen-btn {
@@ -42,33 +43,46 @@
 
         .clock-container {
             display: flex;
-            gap: 20px;
+            gap: 30px;
             align-items: center;
+            width: 100%;
+            justify-content: center;
         }
 
         .time-section {
             display: flex;
-            gap: 12px;
+            gap: 15px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .time-section:first-child {
+            justify-content: flex-end;
+        }
+
+        .time-section:last-of-type {
+            justify-content: flex-start;
         }
 
         .separator {
-            font-size: 120px;
+            font-size: 160px;
             color: rgba(255, 255, 255, 0.3);
             font-weight: 300;
             align-self: center;
-            margin: 0 10px;
+            margin: 0;
+            flex-shrink: 0;
         }
 
         .flip-card {
             position: relative;
-            width: 160px;
-            height: 200px;
+            width: 200px;
+            height: 220px;
             background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
-            border-radius: 12px;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 120px;
+            font-size: 160px;
             font-weight: 700;
             color: #ffffff;
             box-shadow: 
@@ -90,13 +104,14 @@
         }
 
         .period {
-            font-size: 36px;
-            color: rgba(255, 255, 255, 0.7);
+            position: absolute;
+            bottom: 18px;
+            left: 22px;
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
             font-weight: 600;
-            margin-left: 20px;
-            align-self: flex-end;
-            margin-bottom: 35px;
-            letter-spacing: 3px;
+            letter-spacing: 0.5px;
+            z-index: 10;
         }
 
         @media (max-width: 800px) {
@@ -141,7 +156,10 @@
 
     <div class="clock-container">
         <div class="time-section">
-            <div class="flip-card" id="hour1">0</div>
+            <div class="flip-card" id="hour1">
+                <span class="flip-card-number">0</span>
+                <div class="period" id="period">AM</div>
+            </div>
             <div class="flip-card" id="hour2">0</div>
         </div>
         
@@ -151,8 +169,6 @@
             <div class="flip-card" id="min1">0</div>
             <div class="flip-card" id="min2">0</div>
         </div>
-
-        <div class="period" id="period">AM</div>
     </div>
 
     <script>
@@ -176,7 +192,7 @@
             }
         });
 
-        // Wake Lock API
+        // Wake Lock API (may not work on Echo Show, but try anyway)
         let wakeLock = null;
 
         async function requestWakeLock() {
@@ -185,14 +201,14 @@
                     wakeLock = await navigator.wakeLock.request('screen');
                 }
             } catch (err) {
-                console.log('Wake Lock error:', err);
+                // Silent fail - wake lock not supported
             }
         }
 
         requestWakeLock();
         
         document.addEventListener('visibilitychange', async () => {
-            if (wakeLock !== null && document.visibilityState === 'visible') {
+            if (document.visibilityState === 'visible') {
                 await requestWakeLock();
             }
         });
@@ -215,7 +231,15 @@
                 const m1 = Math.floor(minutes / 10);
                 const m2 = minutes % 10;
                 
-                document.getElementById('hour1').textContent = h1;
+                const hour1El = document.getElementById('hour1');
+                const hour1Number = hour1El.querySelector('.flip-card-number') || hour1El;
+                
+                if (hour1Number.tagName === 'SPAN') {
+                    hour1Number.textContent = h1;
+                } else {
+                    hour1El.childNodes[0].textContent = h1;
+                }
+                
                 document.getElementById('hour2').textContent = h2;
                 document.getElementById('min1').textContent = m1;
                 document.getElementById('min2').textContent = m2;
@@ -227,57 +251,54 @@
         updateClock();
         setInterval(updateClock, 1000);
 
-        // Keep-alive mechanisms
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        gainNode.gain.value = 0.001;
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        oscillator.start();
+        // Load the keep-silk-open script for better Echo Show compatibility
+        const keepSilkScript = document.createElement('script');
+        keepSilkScript.src = 'https://dagammla.gitlab.io/keep-silk-open/keep.js';
+        document.body.appendChild(keepSilkScript);
 
-        // Play actual silent audio element periodically
-        const silentAudio = new Audio();
-        silentAudio.loop = true;
-        silentAudio.volume = 0.01;
-        // Very short silent audio data URL
-        silentAudio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQAAAAA=';
-        silentAudio.play().catch(e => console.log('Audio play failed:', e));
+        // Keep-alive mechanisms - simplified for Echo Show compatibility
+        
+        // Try Web Audio (usually works)
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            gainNode.gain.value = 0.001;
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.start();
+        } catch (e) {
+            // Silent fail
+        }
 
         // Simulate realistic user interactions every few minutes
         function simulateUserInteraction() {
-            // Simulate various user events that browsers track for activity
-            const events = [
-                new MouseEvent('mousemove', { bubbles: true, cancelable: true, clientX: Math.random() * 100, clientY: Math.random() * 100 }),
-                new MouseEvent('click', { bubbles: true, cancelable: true }),
-                new TouchEvent('touchstart', { bubbles: true, cancelable: true }),
-                new TouchEvent('touchend', { bubbles: true, cancelable: true }),
-                new KeyboardEvent('keypress', { bubbles: true, cancelable: true, key: ' ' }),
-                new Event('scroll', { bubbles: true })
-            ];
-            
-            events.forEach(event => {
-                try {
-                    document.body.dispatchEvent(event);
-                } catch(e) {
-                    // Some events might fail, that's ok
+            // Simulate various user events
+            try {
+                const events = [
+                    new MouseEvent('mousemove', { bubbles: true, cancelable: true, clientX: Math.random() * 100, clientY: Math.random() * 100 }),
+                    new MouseEvent('click', { bubbles: true, cancelable: true }),
+                    new Event('touchstart', { bubbles: true }),
+                    new Event('touchend', { bubbles: true })
+                ];
+                
+                events.forEach(event => {
+                    try {
+                        document.body.dispatchEvent(event);
+                    } catch(e) {
+                        // Silent fail
+                    }
+                });
+                
+                window.focus();
+                
+                // Re-request wake lock if supported
+                if (wakeLock === null || (wakeLock && wakeLock.released)) {
+                    requestWakeLock();
                 }
-            });
-            
-            // Also simulate focus/blur to make it seem like user is switching tabs
-            window.focus();
-            
-            // Re-request wake lock
-            if (wakeLock === null || wakeLock.released) {
-                requestWakeLock();
+            } catch (e) {
+                // Silent fail
             }
-            
-            // Keep audio playing
-            if (silentAudio.paused) {
-                silentAudio.play().catch(e => console.log('Audio replay failed:', e));
-            }
-            
-            console.log('Simulated user interaction');
         }
 
         // Simulate interaction every 3 minutes (180000ms)
@@ -285,19 +306,13 @@
         
         // Also do it every 30 seconds as backup
         setInterval(() => {
-            const event = new MouseEvent('mousemove', { bubbles: true, cancelable: true });
-            document.body.dispatchEvent(event);
+            try {
+                const event = new MouseEvent('mousemove', { bubbles: true, cancelable: true });
+                document.body.dispatchEvent(event);
+            } catch (e) {
+                // Silent fail
+            }
         }, 30000);
-
-        // Video element trick (some devices respond better to video)
-        const video = document.createElement('video');
-        video.loop = true;
-        video.muted = true;
-        video.style.display = 'none';
-        // Tiny 1x1 black video
-        video.src = 'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMQAAAAhmcmVlAAAAuW1kYXQAAAKuBgX//4ncRem95tlIt5Ys2CDZI+7veDI2NCAtIGNvcmUgMTU5IC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxOSAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzoweDExMyBtZT1oZXggc3VibWU9NyBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0xIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0xIHRyZWxsaXM9MSA4eDhkY3Q9MSBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0tMiB0aHJlYWRzPTEgbG9va2FoZWFkX3RocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz0zIGJfcHlyYW1pZD0yIGJfYWRhcHQ9MSBiX2JpYXM9MCBkaXJlY3Q9MSB3ZWlnaHRiPTEgb3Blbl9nb3A9MCB3ZWlnaHRwPTIga2V5aW50PTI1MCBrZXlpbnRfbWluPTI1IHNjZW5lY3V0PTQwIGludHJhX3JlZnJlc2g9MCByY19sb29rYWhlYWQ9NDAgcmM9Y3JmIG1idHJlZT0xIGNyZj0yMy4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCBpcF9yYXRpbz0xLjQwIGFxPTE6MS4wMACAAAAA';
-        document.body.appendChild(video);
-        video.play().catch(e => console.log('Video play failed:', e));
 
         let hasInteracted = false;
         document.body.addEventListener('click', () => {
