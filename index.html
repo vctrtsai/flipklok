@@ -41,9 +41,58 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
+        .time-format-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            display: flex;
+            gap: 0;
+            z-index: 1000;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .time-format-toggle.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .toggle-row {
+            display: flex;
+            gap: 0;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            padding: 2px;
+        }
+
+        .time-format-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border-radius: 4px;
+        }
+
+        .time-format-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .time-format-btn:hover {
+            color: white;
+        }
+
         .clock-container {
             display: flex;
-            gap: 30px;
+            gap: 15px;
             align-items: center;
             width: 100%;
             justify-content: center;
@@ -51,7 +100,7 @@
 
         .time-section {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             flex: 1;
             justify-content: center;
         }
@@ -65,7 +114,7 @@
         }
 
         .separator {
-            font-size: 160px;
+            font-size: 120px;
             color: rgba(255, 255, 255, 0.3);
             font-weight: 300;
             align-self: center;
@@ -75,14 +124,14 @@
 
         .flip-card {
             position: relative;
-            width: 200px;
-            height: 220px;
+            width: 160px;
+            height: 200px;
             background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
             border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 160px;
+            font-size: 140px;
             font-weight: 700;
             color: #ffffff;
             box-shadow: 
@@ -105,9 +154,9 @@
 
         .period {
             position: absolute;
-            bottom: 18px;
-            left: 22px;
-            font-size: 16px;
+            bottom: 15px;
+            left: 18px;
+            font-size: 14px;
             color: rgba(255, 255, 255, 0.6);
             font-weight: 600;
             letter-spacing: 0.5px;
@@ -124,29 +173,8 @@
                 font-size: 90px;
             }
             .period {
-                font-size: 28px;
-                margin-bottom: 25px;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .flip-card {
-                width: 80px;
-                height: 100px;
-                font-size: 60px;
-            }
-            .separator {
-                font-size: 60px;
-            }
-            .period {
-                font-size: 20px;
-                margin-bottom: 15px;
-            }
-            .time-section {
-                gap: 8px;
-            }
-            .clock-container {
-                gap: 10px;
+                font-size: 11px;
+                bottom: 12px;
             }
         }
     </style>
@@ -154,10 +182,17 @@
 <body>
     <button class="fullscreen-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
 
+    <div class="time-format-toggle" id="timeFormatToggle">
+        <div class="toggle-row">
+            <button class="time-format-btn active" id="btn12" onclick="setTimeFormat(false)">12H</button>
+            <button class="time-format-btn" id="btn24" onclick="setTimeFormat(true)">24H</button>
+        </div>
+    </div>
+
     <div class="clock-container">
         <div class="time-section">
             <div class="flip-card" id="hour1">
-                <span class="flip-card-number">0</span>
+                0
                 <div class="period" id="period">AM</div>
             </div>
             <div class="flip-card" id="hour2">0</div>
@@ -192,6 +227,49 @@
             }
         });
 
+        // Time format toggle
+        let is24Hour = false;
+        let hideTimeout;
+
+        function setTimeFormat(format24) {
+            is24Hour = format24;
+            document.getElementById('btn12').classList.toggle('active', !format24);
+            document.getElementById('btn24').classList.toggle('active', format24);
+            
+            // Hide/show AM/PM based on format
+            const periodEl = document.getElementById('period');
+            if (format24) {
+                periodEl.style.display = 'none';
+            } else {
+                periodEl.style.display = 'block';
+            }
+            
+            // Update immediately
+            updateClock();
+            
+            // Reset hide timer
+            showFormatToggle();
+        }
+
+        function showFormatToggle() {
+            const toggle = document.getElementById('timeFormatToggle');
+            toggle.classList.remove('hidden');
+            
+            clearTimeout(hideTimeout);
+            hideTimeout = setTimeout(() => {
+                toggle.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Show toggle on mouse move
+        document.addEventListener('mousemove', showFormatToggle);
+        document.addEventListener('touchstart', showFormatToggle);
+
+        // Initial hide after 3 seconds
+        setTimeout(() => {
+            document.getElementById('timeFormatToggle').classList.add('hidden');
+        }, 3000);
+
         // Wake Lock API (may not work on Echo Show, but try anyway)
         let wakeLock = null;
 
@@ -223,35 +301,30 @@
             if (minutes !== lastMinute) {
                 lastMinute = minutes;
                 
-                const period = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12 || 12;
+                let displayHours = hours;
                 
-                const h1 = Math.floor(hours / 10);
-                const h2 = hours % 10;
+                if (!is24Hour) {
+                    const period = hours >= 12 ? 'PM' : 'AM';
+                    displayHours = hours % 12 || 12;
+                    document.getElementById('period').textContent = period;
+                }
+                
+                const h1 = Math.floor(displayHours / 10);
+                const h2 = displayHours % 10;
                 const m1 = Math.floor(minutes / 10);
                 const m2 = minutes % 10;
                 
-                const hour1El = document.getElementById('hour1');
-                const hour1Number = hour1El.querySelector('.flip-card-number') || hour1El;
-                
-                if (hour1Number.tagName === 'SPAN') {
-                    hour1Number.textContent = h1;
-                } else {
-                    hour1El.childNodes[0].textContent = h1;
-                }
-                
+                document.getElementById('hour1').childNodes[0].textContent = h1;
                 document.getElementById('hour2').textContent = h2;
                 document.getElementById('min1').textContent = m1;
                 document.getElementById('min2').textContent = m2;
-                
-                document.getElementById('period').textContent = period;
             }
         }
 
         updateClock();
         setInterval(updateClock, 1000);
 
-        // Load the keep-silk-open script for better Echo Show compatibility
+        // Load the keep-silk-open script for Echo Show compatibility
         const keepSilkScript = document.createElement('script');
         keepSilkScript.src = 'https://dagammla.gitlab.io/keep-silk-open/keep.js';
         document.body.appendChild(keepSilkScript);
@@ -314,6 +387,7 @@
             }
         }, 30000);
 
+        // Click anywhere to go fullscreen
         let hasInteracted = false;
         document.body.addEventListener('click', () => {
             if (!hasInteracted && !document.fullscreenElement) {
