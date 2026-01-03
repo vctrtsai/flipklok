@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.3">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1">&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1">&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</p>
+<p class="p1">&lt;title&gt;Flip Clock&lt;/title&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;style&gt;</p>
+<p class="p1">html, body {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>margin: 0;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>height: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>background: #000;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>overflow: hidden;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">.clock {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>gap: 2vw;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">.card {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>width: 42vw;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>max-width: 240px;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>height: 70vw;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>max-height: 360px;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>background: #0a0a0a;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>border-radius: 28px;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>perspective: 1200px;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">.card::after {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>content: "";</p>
+<p class="p1"><span class="Apple-converted-space">  </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>left: 6%;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>right: 6%;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>top: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>height: 2px;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>background: #1c1c1c;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">.value {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>font-size: 42vw;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>max-font-size: 240px;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>color: #bfbfbf;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>line-height: 1;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>font-weight: 600;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">.ampm {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>bottom: 18px;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>left: 22px;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>font-size: 28px;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>color: #9a9a9a;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>letter-spacing: 1px;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">.flip {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>animation: flip 0.7s cubic-bezier(0.4, 0, 0.2, 1);</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">@keyframes flip {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>0% { transform: rotateX(0deg); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>40% { transform: rotateX(-90deg); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>100% { transform: rotateX(0deg); }</p>
+<p class="p1">}</p>
+<p class="p1">&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;div class="clock"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="card" id="hourCard"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="value" id="hour"&gt;7&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="ampm" id="ampm"&gt;PM&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="card" id="minuteCard"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="value" id="minute"&gt;44&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;audio autoplay loop muted&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;source src="data:audio/mp3;base64,//uQZAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQCA" type="audio/mp3"&gt;</p>
+<p class="p1">&lt;/audio&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1">let lastMinute = null;</p>
+<p class="p2"><br></p>
+<p class="p1">function updateClock() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const now = new Date();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const brisbane = new Date(</p>
+<p class="p1"><span class="Apple-converted-space">    </span>now.toLocaleString('en-US', { timeZone: 'Australia/Brisbane' })</p>
+<p class="p1"><span class="Apple-converted-space">  </span>);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>let hours = brisbane.getHours();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const minutes = brisbane.getMinutes();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const ampm = hours &gt;= 12 ? 'PM' : 'AM';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>hours = hours % 12;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>hours = hours ? hours : 12;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (minutes !== lastMinute) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('hourCard').classList.remove('flip');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('minuteCard').classList.remove('flip');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>void document.body.offsetWidth;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('hourCard').classList.add('flip');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('minuteCard').classList.add('flip');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>lastMinute = minutes;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('hour').textContent = hours;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('minute').textContent = String(minutes).padStart(2, '0');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('ampm').textContent = ampm;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">updateClock();</p>
+<p class="p1">setInterval(updateClock, 1000);</p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
