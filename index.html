@@ -17,7 +17,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
             overflow: hidden;
             padding-bottom: 40px;
         }
@@ -29,16 +29,20 @@
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 12px 20px;
+            padding: 10px 18px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
+            font-weight: 500;
             transition: all 0.3s;
             z-index: 1000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            letter-spacing: 0.3px;
         }
 
         .fullscreen-btn:hover {
             background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
         }
 
         .time-format-toggle {
@@ -76,9 +80,11 @@
             padding: 8px 16px;
             cursor: pointer;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 500;
             transition: all 0.3s;
             border-radius: 4px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            letter-spacing: 0.3px;
         }
 
         .time-format-btn.active {
@@ -114,30 +120,37 @@
         }
 
         .separator {
-            font-size: 120px;
+            font-size: clamp(70px, 13vw, 120px);
             color: rgba(255, 255, 255, 0.3);
             font-weight: 300;
             align-self: center;
             margin: 0;
             flex-shrink: 0;
+            transition: opacity 0.2s ease;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        }
+
+        .separator.blink {
+            opacity: 0.2;
         }
 
         .flip-card {
             position: relative;
-            width: 160px;
-            height: 200px;
+            width: clamp(80px, 15vw, 160px);
+            height: clamp(100px, 18.75vw, 200px);
             background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
-            border-radius: 15px;
+            border-radius: clamp(8px, 1.5vw, 15px);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 140px;
-            font-weight: 700;
-            color: #ffffff;
+            font-size: clamp(50px, 10vw, 140px);
+            font-weight: 600;
+            color: #e8e8e8;
             box-shadow: 
                 0 20px 60px rgba(0, 0, 0, 0.5),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.05);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
         }
 
         .flip-card::before {
@@ -154,27 +167,22 @@
 
         .period {
             position: absolute;
-            bottom: 15px;
-            left: 18px;
-            font-size: 14px;
+            bottom: clamp(8px, 1.5vw, 15px);
+            left: clamp(10px, 2vw, 18px);
+            font-size: clamp(10px, 1.5vw, 14px);
             color: rgba(255, 255, 255, 0.6);
-            font-weight: 600;
+            font-weight: 500;
             letter-spacing: 0.5px;
             z-index: 10;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
         }
 
         @media (max-width: 800px) {
-            .flip-card {
-                width: 120px;
-                height: 150px;
-                font-size: 90px;
+            .clock-container {
+                gap: 10px;
             }
-            .separator {
-                font-size: 90px;
-            }
-            .period {
-                font-size: 11px;
-                bottom: 12px;
+            .time-section {
+                gap: 8px;
             }
         }
     </style>
@@ -198,7 +206,7 @@
             <div class="flip-card" id="hour2">0</div>
         </div>
         
-        <div class="separator">:</div>
+        <div class="separator" id="separator">:</div>
         
         <div class="time-section">
             <div class="flip-card" id="min1">0</div>
@@ -245,6 +253,7 @@
             }
             
             // Update immediately
+            lastMinute = -1;
             updateClock();
             
             // Reset hide timer
@@ -270,7 +279,7 @@
             document.getElementById('timeFormatToggle').classList.add('hidden');
         }, 3000);
 
-        // Wake Lock API (may not work on Echo Show, but try anyway)
+        // Wake Lock API
         let wakeLock = null;
 
         async function requestWakeLock() {
@@ -279,7 +288,7 @@
                     wakeLock = await navigator.wakeLock.request('screen');
                 }
             } catch (err) {
-                // Silent fail - wake lock not supported
+                // Silent fail
             }
         }
 
@@ -307,6 +316,8 @@
                     const period = hours >= 12 ? 'PM' : 'AM';
                     displayHours = hours % 12 || 12;
                     document.getElementById('period').textContent = period;
+                } else {
+                    displayHours = hours;
                 }
                 
                 const h1 = Math.floor(displayHours / 10);
@@ -324,14 +335,21 @@
         updateClock();
         setInterval(updateClock, 1000);
 
-        // Load the keep-silk-open script for Echo Show compatibility
+        // Blink colon every second
+        setInterval(() => {
+            const separator = document.getElementById('separator');
+            separator.classList.add('blink');
+            setTimeout(() => {
+                separator.classList.remove('blink');
+            }, 500);
+        }, 1000);
+
+        // Load the keep-silk-open script
         const keepSilkScript = document.createElement('script');
         keepSilkScript.src = 'https://dagammla.gitlab.io/keep-silk-open/keep.js';
         document.body.appendChild(keepSilkScript);
 
-        // Keep-alive mechanisms - simplified for Echo Show compatibility
-        
-        // Try Web Audio (usually works)
+        // Keep-alive mechanisms
         try {
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioContext.createOscillator();
@@ -344,9 +362,7 @@
             // Silent fail
         }
 
-        // Simulate realistic user interactions every few minutes
         function simulateUserInteraction() {
-            // Simulate various user events
             try {
                 const events = [
                     new MouseEvent('mousemove', { bubbles: true, cancelable: true, clientX: Math.random() * 100, clientY: Math.random() * 100 }),
@@ -365,7 +381,6 @@
                 
                 window.focus();
                 
-                // Re-request wake lock if supported
                 if (wakeLock === null || (wakeLock && wakeLock.released)) {
                     requestWakeLock();
                 }
@@ -374,10 +389,8 @@
             }
         }
 
-        // Simulate interaction every 3 minutes (180000ms)
         setInterval(simulateUserInteraction, 180000);
         
-        // Also do it every 30 seconds as backup
         setInterval(() => {
             try {
                 const event = new MouseEvent('mousemove', { bubbles: true, cancelable: true });
@@ -387,7 +400,6 @@
             }
         }, 30000);
 
-        // Click anywhere to go fullscreen
         let hasInteracted = false;
         document.body.addEventListener('click', () => {
             if (!hasInteracted && !document.fullscreenElement) {
